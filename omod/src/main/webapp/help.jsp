@@ -12,31 +12,39 @@ Main documentation page for the module is on the wiki:
 <a href="https://wiki.openmrs.org/x/xoAaAQ">https://wiki.openmrs.org/display/projects/Webservices.rest+Module</a>
 
 <br/><br/>
-<!--  <openmrs:htmlInclude file="/moduleResources/webservices/rest/js/mytestscript.js" />-->
-<script src="/openmrs-standalone/scripts/mytestscript.js" type="text/javascript"> </script>
+ <openmrs:htmlInclude file="/moduleResources/webservices/rest/js/mytestscript.js" />
+
+
+
 
 <style type="text/css">
-	table.resourceData, table.resourceData th, table.resourceData td
+	table.resourceData, table.resourceData td
 	{
-		border: 1px solid black;
-		border-collapse: collapse;
+        border-collapse: collapse;
+	}
+	
+	table.resourceData th{
+	    /* border: 1px solid black; */
 	}
 	
 	table.resourceData tr.d0 td {
-	background-color: #FCF6CF;
+	    background-color: #FCF6CF;
+		/*border: 1px solid black;*/
+		
 	}
 	
 	table.resourceData tr.d1 td {
 		background-color: #FEFEF2;
+		/*border: 1px solid black;*/
 	}
 	
 	.versionsFieldSet{
 	width:30%;
 	}
-		table.innerTable, table.innerTable td
+		table.innerTable, table.innerTable td, table.innerTable tr
 	{
 	    width:100%;
-		border: 0px gray;
+		border: 0px !important;
 		 border-collapse: collapse;
 	}
 	.formVersion{
@@ -48,18 +56,18 @@ Main documentation page for the module is on the wiki:
 	}
 	
 	.collapse{
-		background-image: url("/openmrs-standalone/images/collapse.png");
-		margin-right: 5px;
-		height: 30px;
-		background-repeat: no-repeat;
-		overflow:hidden;
-		cursor:pointer;
+		background-image: url("<openmrs:contextPath/>/moduleResources/webservices/rest/images/collapse.png");
+        height: 30px;
+        margin:0px;
+        background-repeat: no-repeat;
+        overflow:hidden;
+        cursor:pointer;
 	}
 	
 	.expand{
-       background-image: url("/openmrs-standalone/images/expand.png");
-       margin-right: 5px;
+       background-image: url("<openmrs:contextPath/>/moduleResources/webservices/rest/images/expand.png");
        height: 30px;
+       margin:0px;
        background-repeat: no-repeat;
        overflow:hidden;
        cursor:pointer;
@@ -71,6 +79,21 @@ Main documentation page for the module is on the wiki:
 	
 	.expanded{
 	  display:table-row;
+	}
+	
+	.subResourceCell{
+	   padding-left:60px;
+	}
+	
+	.subResourceRepresention{
+	   position:relative;
+	   left: 25px;
+	}
+	
+	.resourceText{
+	  position: relative;
+	  left: 40px;
+	  top: -30px;
 	}
 	
 	
