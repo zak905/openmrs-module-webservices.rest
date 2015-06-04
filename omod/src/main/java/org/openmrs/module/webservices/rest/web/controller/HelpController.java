@@ -14,24 +14,33 @@
 package org.openmrs.module.webservices.rest.web.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.api.context.Context;
+import org.openmrs.module.webservices.docs.ResourceDoc;
 import org.openmrs.module.webservices.docs.ResourceDocCreator;
+import org.openmrs.module.webservices.docs.SearchHandlerDoc;
+import org.openmrs.module.webservices.rest.web.DocumentationConfiguration;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.response.ConversionException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Controller behind the "help.jsp" page. Should list off available urls and representations.
  */
 @Controller("webservices.rest.HelpController")
+@RequestMapping("/module/webservices/rest/help")
 public class HelpController {
 	
-	@RequestMapping("/module/webservices/rest/help")
+	@RequestMapping(method = RequestMethod.GET)
 	public void showPage(ModelMap map, HttpServletRequest request) throws IllegalAccessException, InstantiationException,
 	        IOException, ConversionException {
 		
@@ -57,6 +66,24 @@ public class HelpController {
 		
 		url += "/ws";
 		
-		map.put("data", ResourceDocCreator.create(url));
+		List<ResourceDoc> docs = ResourceDocCreator.create(url);
+		
+		List<SearchHandlerDoc> searchDocs = ResourceDocCreator.createSearchHandlerDoc(url);
+		
+		map.put("data", docs);
+		
+		for (SearchHandlerDoc handlerDoc : searchDocs) {
+			for (ResourceDoc resourceDoc : docs) {
+				if (handlerDoc.getResourceURL().equals(resourceDoc.getUrl())) {
+					handlerDoc.setResourceName(resourceDoc.getName());
+					break;
+				}
+				
+			}
+		}
+		
+		map.put("searchHandlersData", searchDocs);
 	}
+	
+	
 }
