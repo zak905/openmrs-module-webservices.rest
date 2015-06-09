@@ -1,7 +1,10 @@
 package org.openmrs.module.webservices.rest.web.controller;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -10,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.webservices.docs.SwaggerSpecificationCreator;
+import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.response.ConversionException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,12 +46,34 @@ public class SwaggerSpecificationController {
 			}
 			
 			baseUrl.append(request.getContextPath());
+			
+			String resourcesUrl = Context.getAdministrationService().getGlobalProperty(
+			    RestConstants.URI_PREFIX_GLOBAL_PROPERTY_NAME, baseUrl.toString());
+			
+			resourcesUrl += "/ws";
+			
 			baseUrl.append("/moduleResources/webservices/rest/test.json");
 			
 			URL swaggerSpec = new URL(baseUrl.toString());
 			BufferedReader in = new BufferedReader(new InputStreamReader(swaggerSpec.openStream()));
 			
+			SwaggerSpecificationCreator creator = new SwaggerSpecificationCreator(resourcesUrl);
+			
+			String fileSeparator = System.getProperty("file.separator");
+			
 			System.out.println(" URL " + baseUrl.toString());
+			File file = new File("C:" + fileSeparator + "Users" + fileSeparator + "zakaria" + fileSeparator + "Desktop"
+			        + fileSeparator + "output.json");
+			
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(creator.BuildJSON());
+			bw.close();
 			
 			Object temp = parser.parse(in);
 			object = (JSONObject) temp;
