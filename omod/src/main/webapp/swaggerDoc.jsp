@@ -32,7 +32,7 @@
                       apisSorter: "alpha",
                       onFailure: function(data) {
                           console.log("Unable to Load SwaggerUI");
-                          jQuery("#swaggerError").innerHTML = "Error Loading Value";
+                          jQuery("#swaggerError").innerHTML = "Error Loading Swagger UI";
                         }
 					});
 					swaggerUi.load();

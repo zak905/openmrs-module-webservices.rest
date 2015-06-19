@@ -17,7 +17,7 @@
       
      <ul>
 		<li>
-		   <b>URL: </b> ${resource.resourceURL}
+		   <b><spring:message code="webservices.rest.help.url"/>: </b> ${resource.resourceURL}
 		</li>
 		<li>
 		  OpenMRS versions: 
@@ -31,15 +31,15 @@
 		  </c:forEach>
 		</li>
 	    <li>
-	       Available Handlers :
+	       <spring:message code="webservices.rest.help.availableHandlers"/> :
 	          <ol type="1">
 	         <c:forEach var="searchQuery" items="${resource.searchQueriesDoc}">
 	             <li>
 	               <table class="queryTable">
 	                  <tr>
-	                  <th>Required Parameters</th>
-	                  <th> Optional Parameters</th>
-	                  <th> Description</th>
+	                  <th><spring:message code="webservices.rest.help.requiredParameters"/></th>
+	                  <th> <spring:message code="webservices.rest.help.optionalParameters"/></th>
+	                  <th> <spring:message code="webservices.rest.help.description"/></th>
 	                 </tr>
 	                 <tr>
 	                   <td>

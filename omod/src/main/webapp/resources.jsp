@@ -7,10 +7,10 @@
 		 >
 
 		<td <c:if test="${resource.subResource}">class="subResourceCell"</c:if>>
-            <c:if test="${resource.subResource}">Subresource:</c:if>
+            <c:if test="${resource.subResource}"><spring:message code="webservices.rest.help.subresource"/>:</c:if>
             <c:if test="${!empty resource.subResources}"><div class="parentResource expand"></div><div class="resourceText"></c:if>
 		    ${resource.name}
-            <c:if test="${!empty resource.subtypeHandlerForResourceName}">extends ${resource.subtypeHandlerForResourceName}</c:if>
+            <c:if test="${!empty resource.subtypeHandlerForResourceName}"><spring:message code="webservices.rest.help.extends"/> ${resource.subtypeHandlerForResourceName}</c:if>
           <c:if test="${!empty resource.subResources}"></div></c:if>
         </td>
 		<td <c:if test="${resource.subResource}">class="subResourceCell"</c:if>>${resource.url}</td>

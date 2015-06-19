@@ -65,8 +65,6 @@ public class ResourceDocCreator {
 		
 		List<DelegatingResourceHandler<?>> resourceHandlers = Context.getService(RestService.class).getResourceHandlers();
 		
-		//Context.getService(RestService.class).
-		
 		fillRepresentations(resourceHandlers, resouceDocMap);
 		//fillOperations(resourceDocMap);
 		fillUrls(baseUrl, resouceDocMap);
@@ -179,8 +177,9 @@ public class ResourceDocCreator {
 				String[] supportedVersions = resourceAnnotation.supportedOpenmrsVersions();
 				List<String> supportedVersionsList = new ArrayList<String>();
 				
-				for (String version : supportedVersions)
+				for (String version : supportedVersions) {
 					supportedVersionsList.add(version);
+				}
 				
 				resourceDoc.setSupportedOpenMRSVersion(supportedVersionsList);
 				

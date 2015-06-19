@@ -8,7 +8,7 @@
 
 <h2><spring:message code="webservices.rest.help.title" /></h2>
 
-Main documentation page for the module is on the wiki: 
+<spring:message code="webservices.rest.help.wikiTitle"/>: 
 <a href="https://wiki.openmrs.org/x/xoAaAQ">https://wiki.openmrs.org/display/projects/Webservices.rest+Module</a>
 
 <br/><br/>
@@ -101,10 +101,7 @@ Main documentation page for the module is on the wiki:
 
 <form:form method="post" modelAttribute="documentationConfiguration">
 <fieldset class="versionsFieldSet">
-<legend> OpenMRS Versions </legend>
- <!--  <c:forEach var="openMRSVersion" items="${distinctVersions}">
-          <span> <input type="checkbox" name="${openMRSVersion}" value="${openMRSVersion}"> ${openMRSVersion} <span>
-    </c:forEach>-->
+<legend> <spring:message code="webservices.rest.help.versions"/> </legend>
     <form:checkboxes path="selectedVersions" items="${distinctVersions}" />
     <input type="submit" value="Display"/> 
 </fieldset>
@@ -112,14 +109,14 @@ Main documentation page for the module is on the wiki:
 <div style="height:20px"></div>
 <table id="resourceTable" class="resourceData">
   <tr>
-   <th>Resource</th>
-   <th>Url</th>
+   <th><spring:message code="webservices.rest.help.resource"/></th>
+   <th><spring:message code="webservices.rest.help.url"/></th>
   <!--   <th>Version</th>-->
-   <th>Representations</th>
+   <th><spring:message code="webservices.rest.help.representations"/></th>
   </tr>
   <jsp:include page="resources.jsp" />
 </table>
-<h2> Search Handlers </h2>
+<h2> <spring:message code="webservices.rest.help.searchHandlers"/> </h2>
 
   <jsp:include page="searchResources.jsp" />
 </table>
