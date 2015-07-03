@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.webservices.docs.swagger;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,18 +30,25 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.webservices.docs.ResourceDoc;
+import org.openmrs.module.webservices.docs.ResourceOperation;
 import org.openmrs.module.webservices.docs.ResourceRepresentation;
+import org.openmrs.module.webservices.docs.SearchHandlerDoc;
+import org.openmrs.module.webservices.docs.SearchQueryDoc;
 import org.openmrs.module.webservices.rest.SimpleObject;
 import org.openmrs.module.webservices.rest.web.RestConstants;
 import org.openmrs.module.webservices.rest.web.api.RestService;
 import org.openmrs.module.webservices.rest.web.representation.Representation;
 import org.openmrs.module.webservices.rest.web.resource.api.Converter;
+import org.openmrs.module.webservices.rest.web.resource.api.SearchHandler;
 import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingResourceDescription;
 import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingResourceHandler;
 import org.openmrs.module.webservices.rest.web.resource.impl.DelegatingResourceDescription.Property;
 import org.openmrs.module.webservices.rest.web.response.ResourceDoesNotSupportOperationException;
+import org.openmrs.module.webservices.rest.web.v1_0.controller.MainResourceController;
+import org.openmrs.module.webservices.rest.web.v1_0.controller.MainSubResourceController;
 
 public class SwaggerSpecificationCreator {
 	
@@ -48,9 +58,13 @@ public class SwaggerSpecificationCreator {
 	
 	private static List<ResourceDoc> resourceDocList = new ArrayList<ResourceDoc>();
 	
+	private static List<SearchHandlerDoc> searchHandlerDocs;
+	
 	public SwaggerSpecificationCreator(String baseUrl) {
 		this.swaggerSpecification = new SwaggerSpecification();
 		this.baseUrl = baseUrl;
+		List<SearchHandler> searchHandlers = Context.getService(RestService.class).getAllSearchHandlers();
+		searchHandlerDocs = fillSearchHandlers(searchHandlers, baseUrl);
 	}
 	
 	public String BuildJSON() {
@@ -60,6 +74,8 @@ public class SwaggerSpecificationCreator {
 			CreateObjectDefintions();
 			AddResourceTags();
 		}
+		
+		//serialize();
 		return CreateJSON();
 	}
 	
@@ -107,12 +123,6 @@ public class SwaggerSpecificationCreator {
 		});
 		
 		for (DelegatingResourceHandler<?> resourceHandler : resourceHandlers) {
-			if (resourceHandler.getClass().getName()
-			        .equals("org.openmrs.module.webservices.rest.web.HivDrugOrderSubclassHandler")
-			        || resourceHandler.getClass().getName()
-			                .equals("org.openmrs.module.webservices.rest.web.v1_0.test.GenericChildResource")) {
-				continue; //Skip the test class
-			}
 			
 			Object delegate = null;
 			try {
@@ -220,6 +230,7 @@ public class SwaggerSpecificationCreator {
 			
 			for (ResourceRepresentation representation : resourceDoc.getRepresentations()) {
 				String resourceLongName = resourceDoc.getResourceName();
+				String resourceURL = resourceDoc.getUrl();
 				if (resourceLongName != null) {
 					String tempRepresentationName = representation.getName();
 					String tempOperation = (tempRepresentationName.split(" "))[0];
@@ -230,7 +241,6 @@ public class SwaggerSpecificationCreator {
 					//For Get Representation
 					if (tempOperation.equals("GET")) {
 						if (operationType.equals("full")) {
-							
 							//Get resource
 							Operation operationGet = CreateOperation("get", resourceName, representation, OperationEnum.get);
 							operationsMap.put("get", operationGet);
@@ -243,7 +253,6 @@ public class SwaggerSpecificationCreator {
 							operationsWithUUIDMap.put("get", operationGetWithUUID);
 							path2.setOperations(operationsWithUUIDMap);
 							pathMap.put("/" + resourceName + "/{uuid}", path2);
-							
 						}
 					}// For Post Representation
 					else {
@@ -255,7 +264,6 @@ public class SwaggerSpecificationCreator {
 							path.setOperations(operationsMap);
 							
 							pathMap.put("/" + resourceName, path);
-							
 						} else {
 							//Post update
 							Operation operationPostUpdate = CreateOperation("post", resourceName, representation,
@@ -263,10 +271,8 @@ public class SwaggerSpecificationCreator {
 							operationsWithUUIDMap.put("post", operationPostUpdate);
 							path2.setOperations(operationsWithUUIDMap);
 							pathMap.put("/" + resourceName + "/{uuid}", path2);
-							
 						}
 					}
-					
 				}
 				resourceDocList.add(resourceDoc);
 			}
@@ -346,19 +352,43 @@ public class SwaggerSpecificationCreator {
 		return properties;
 	}
 	
-	private List<Parameter> getParametersList(Collection<String> properties, OperationEnum operationEnum) {
-		
+	private List<Parameter> getParametersList(Collection<String> properties, String resourceName, OperationEnum operationEnum) {
 		List<Parameter> parameters = new ArrayList<Parameter>();
-		
+		String resourceURL = getResourceUrl(baseUrl, resourceName);
 		if (operationEnum == OperationEnum.get) {
-			for (String property : properties) {
+			for (SearchHandlerDoc searchDoc : searchHandlerDocs) {
+				System.out.println(" 1 " + resourceURL + " 2 " + searchDoc.getResourceURL());
+				if (searchDoc.getResourceURL().equals(resourceURL)) {
+					System.out.println("Inside");
+					for (SearchQueryDoc queryDoc : searchDoc.getSearchQueriesDoc()) {
+						for (String requiredParameter : queryDoc.getRequiredParameters()) {
+							Parameter parameter = new Parameter();
+							parameter.setName(requiredParameter);
+							parameter.setIn("query");
+							parameter.setDescription(queryDoc.getDescription());
+							parameter.setRequired(true);
+							parameters.add(parameter);
+						}
+						for (String optionalParameter : queryDoc.getOptionalParameters()) {
+							Parameter parameter = new Parameter();
+							parameter.setName(optionalParameter);
+							parameter.setIn("query");
+							parameter.setDescription(queryDoc.getDescription());
+							parameter.setRequired(false);
+							parameters.add(parameter);
+						}
+					}
+				}
+			}
+			
+			/*for (String property : properties) {
 				Parameter parameter = new Parameter();
 				parameter.setName(property);
 				parameter.setIn("query");
 				parameter.setDescription(property + " to filter by");
 				parameter.setRequired(false);
 				parameters.add(parameter);
-			}
+			}*/
 		} else if (operationEnum == OperationEnum.getWithUUID) {
 			Parameter parameter = new Parameter();
 			parameter.setName("uuid");
@@ -389,7 +419,7 @@ public class SwaggerSpecificationCreator {
 				Parameter parameter = new Parameter();
 				parameter.setName(property);
 				parameter.setIn("query");
-				parameter.setDescription(property + " to be update");
+				parameter.setDescription(property + " to be updated");
 				
 				if (property.startsWith("*")) {
 					parameter.setRequired(true);
@@ -458,7 +488,7 @@ public class SwaggerSpecificationCreator {
 		List<String> produces = new ArrayList<String>();
 		produces.add("application/json");
 		operation.setProduces(produces);
-		List<Parameter> parameters = getParametersList(representation.getProperties(), operationEnum);
+		List<Parameter> parameters = getParametersList(representation.getProperties(), resourceName, operationEnum);
 		operation.setParameters(parameters);
 		
 		Response statusOKResponse = new Response();
@@ -483,6 +513,41 @@ public class SwaggerSpecificationCreator {
 		operation.setResponses(responses);
 		
 		return operation;
+	}
+	
+	private static List<SearchHandlerDoc> fillSearchHandlers(List<SearchHandler> searchHandlers, String url) {
+		
+		List<SearchHandlerDoc> searchHandlerDocList = new ArrayList<SearchHandlerDoc>();
+		String baseUrl = url.replace("/rest", "");
+		for (SearchHandler searchHandler : searchHandlers) {
+			
+			SearchHandlerDoc searchHandlerDoc = new SearchHandlerDoc(searchHandler, baseUrl);
+			searchHandlerDocList.add(searchHandlerDoc);
+		}
+		
+		return searchHandlerDocList;
+	}
+	
+	private String getResourceUrl(String baseUrl, String resourceName) {
+		
+		String resourceUrl = baseUrl;
+		
+		//Set the root url.
+		return resourceUrl + "/" + resourceName;
+		
+	}
+	
+	private void serialize() {
+		try {
+			FileOutputStream fileOut = new FileOutputStream("C://Users//zakaria//Desktop//spec.ser");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(swaggerSpecification);
+			out.close();
+			fileOut.close();
+		}
+		catch (Exception exp) {
+			exp.printStackTrace();
+		}
 	}
 	
 }

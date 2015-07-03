@@ -13,9 +13,9 @@
  */
 package org.openmrs.module.webservices.docs;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Data structure containing documentation about a web service resource.
